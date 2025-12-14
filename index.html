@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Weather Now — Your Real-Time Weather Companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="titles brand-card">
+        <h1 class="brand"><span class="brand-icon" data-lucide="droplets"></span> <span class="brand-name">Weather Now</span></h1>
+        <p class="subtitle">Your Real-Time Weather Companion</p>
+      </div>
+      <div class="controls">
+        <form id="search-form" class="search-wrap">
+          <div class="search-box">
+            <input id="search-input" type="text" placeholder="🌍 Enter City Name(e.g.,Hyderabad)" autocomplete="off" />
+            <div id="suggestions" class="suggestions" hidden></div>
+          </div>
+          <button type="submit"><i data-lucide="search"></i> Check Weather Now</button>
+        </form>
+        <button id="use-location"><i data-lucide="map-pin"></i> Use my location</button>
+        <button id="mode-toggle" aria-pressed="true"><i data-lucide="moon-star"></i> Dark Mode</button>
+        <select id="units">
+          <option value="metric">Metric</option>
+          <option value="imperial">Imperial</option>
+        </select>
+      </div>
+    </header>
+
+    <main>
+      <div class="bg-art" aria-hidden="true"></div>
+      <div class="bg-icons" aria-hidden="true">
+        <span class="wx-icon sun"><i data-lucide="sun"></i></span>
+        <span class="wx-icon moon"><i data-lucide="moon"></i></span>
+        <span class="wx-icon cloud a"><i data-lucide="cloud"></i></span>
+        <span class="wx-icon cloud b"><i data-lucide="cloud"></i></span>
+        <span class="wx-icon rain"><i data-lucide="cloud-rain"></i></span>
+        <span class="wx-icon snow"><i data-lucide="cloud-snow"></i></span>
+        <span class="wx-icon storm"><i data-lucide="cloud-lightning"></i></span>
+        <span class="wx-icon wind"><i data-lucide="wind"></i></span>
+      </div>
+      <section class="hero" id="hero">
+        <div class="hero-top">
+          <div class="hero-icon" id="hero-icon"></div>
+          <div class="temp-big" id="hero-temp"></div>
+        </div>
+        <div class="condition" id="hero-cond"></div>
+        <div class="range" id="hero-range"></div>
+        <p class="hero-sub">Get accurate, real-time forecasts for your city. Know what’s coming — sunshine, rain, or storm — before it arrives.</p>
+        <p class="tagline" id="tagline">Bringing tomorrow’s weather, today.</p>
+      </section>
+      <section class="status" id="status"></section>
+
+      <h2 class="section-title" id="current-heading">Current Weather</h2>
+      <section class="astro" id="astro">
+        <div class="astro-grid">
+          <div class="astro-card">
+            <div class="astro-icon"><i data-lucide="sunrise"></i></div>
+            <div class="astro-title">Sunrise</div>
+            <div class="astro-value" id="sunrise">—</div>
+          </div>
+          <div class="astro-card">
+            <div class="astro-icon"><i data-lucide="sunset"></i></div>
+            <div class="astro-title">Sunset</div>
+            <div class="astro-value" id="sunset">—</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="current" id="current">
+        <div class="card">
+          <div class="row">
+            <div class="col">
+              <div class="label"><span data-lucide="map-pin"></span> Location</div>
+              <div class="value" id="loc-name">—</div>
+            </div>
+            <div class="col">
+              <div class="label"><span data-lucide="clock"></span> Now</div>
+              <div class="value" id="now-time">—</div>
+            </div>
+          </div>
+          <div class="grid">
+            <div class="metric">
+              <div class="label"><span class="icon-pill rain" data-lucide="cloud-drizzle"></span> Precipitation</div>
+              <div class="value" id="now-precip">—</div>
+            </div>
+            <div class="metric">
+              <div class="label"><span class="icon-pill pop" data-lucide="umbrella"></span> Chance of rain</div>
+              <div class="value" id="now-pop">—</div>
+            </div>
+            <div class="metric">
+              <div class="label"><span class="icon-pill temp" data-lucide="thermometer"></span> Temperature</div>
+              <div class="value" id="now-temp">—</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="charts">
+        <div class="chart-card">
+          <h2><span data-lucide="timer"></span> Next 24 hours</h2>
+          <canvas id="hourlyChart" height="100"></canvas>
+        </div>
+        <div class="chart-card">
+          <h2><span data-lucide="calendar"></span> Next 7 days</h2>
+          <canvas id="dailyChart" height="100"></canvas>
+        </div>
+      </section>
+
+      <section class="forecast-section">
+        <h2><span data-lucide="calendar-days"></span> Next 5 Days Forecast</h2>
+        <div id="forecast-cards" class="forecast-cards"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>
+        <span><i data-lucide="bolt"></i> Powered by Weather Now</span>
+        <span class="sep">|</span>
+        <span><i data-lucide="database"></i> Data from Open‑Meteo API</span>
+        <span class="sep">|</span>
+        <span><i data-lucide="copyright"></i> Weather Now 2025</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
