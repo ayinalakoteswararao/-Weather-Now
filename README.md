@@ -9,7 +9,6 @@
   <img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-FFD43B?logo=javascript&logoColor=222">
   <img alt="Chart.js" src="https://img.shields.io/badge/Chart.js-FF6384?logo=chartdotjs&logoColor=fff">
   <img alt="Lucide Icons" src="https://img.shields.io/badge/Icons-LUCIDE-0EA5E9">
-  <img alt="License" src="https://img.shields.io/badge/License-MIT-10B981">
 </p>
 
 <p align="center">
@@ -97,6 +96,4 @@ All routes proxy to Open‑Meteo services and return JSON.
 
 No user accounts or persistent storage. Location is only used client‑side to fetch weather data for the current session.
 
-## 📄 License
 
-MIT 
