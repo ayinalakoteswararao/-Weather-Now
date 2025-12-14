@@ -97,8 +97,10 @@ All routes proxy to Open‑Meteo services and return JSON.
 No user accounts or persistent storage. Location is only used client‑side to fetch weather data for the current session.
 
 
-📞 Support
-For support, email ayinalakoteswararao@gmail.com or open an issue in the GitHub repository.
+## 📞 Support
 
-Made with ❤️ by Ayinala-KoteswaraRao
+For support, email `ayinalakoteswararao@gmail.com` or open an issue in this GitHub repository.
 
+---
+
+Made with ❤️ by **Ayinala-KoteswaraRao**
