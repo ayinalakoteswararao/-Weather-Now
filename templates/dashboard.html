@@ -1,0 +1,958 @@
+{% extends "base.html" %}
+{% block title %}Weather Dashboard - WeatherPro{% endblock %}
+{% block html_class %}dashboard-html-fixed{% endblock %}
+{% block body_class %}dashboard-body-fixed{% endblock %}
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+  /* Override generic style.css constraints to allow scrolling and standard layout */
+  html.dashboard-html-fixed, body.dashboard-body-fixed {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: auto !important;
+    min-height: 100vh;
+    font-family: 'Outfit', sans-serif;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, rgba(255, 255, 255, 0) 50%), 
+                radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.05) 0%, rgba(255, 255, 255, 0) 50%), 
+                #f8fafc !important;
+    color: #0f172a !important;
+  }
+
+  [data-bs-theme="dark"] html.dashboard-html-fixed, 
+  [data-bs-theme="dark"] body.dashboard-body-fixed {
+    background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.12) 0%, rgba(15, 23, 42, 0) 50%), 
+                radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, rgba(15, 23, 42, 0) 50%), 
+                #0b0f19 !important;
+    color: #cbd5e1 !important;
+  }
+
+  /* Floating island navbar (matching landing page) */
+  .landing-nav {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 40px);
+    max-width: 1200px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(16px);
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  [data-bs-theme="dark"] .landing-nav {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .landing-nav .navbar-brand {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  .nav-link {
+    position: relative;
+    padding: 0.5rem 1rem;
+    color: #475569 !important;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  [data-bs-theme="dark"] .nav-link {
+    color: #cbd5e1 !important;
+  }
+
+  .nav-link:hover {
+    color: #4f46e5 !important;
+  }
+
+  [data-bs-theme="dark"] .nav-link:hover {
+    color: #818cf8 !important;
+  }
+
+  /* Main Container Layout */
+  .dashboard-container {
+    padding-top: 130px;
+    padding-bottom: 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .page-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 2.2rem;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+    margin-bottom: 8px;
+  }
+
+  [data-bs-theme="dark"] .page-title {
+    color: #f8fafc;
+  }
+
+  .page-subtitle {
+    color: #64748b;
+    font-size: 1.05rem;
+    margin-bottom: 40px;
+  }
+
+  [data-bs-theme="dark"] .page-subtitle {
+    color: #94a3b8;
+  }
+
+  /* Glassmorphic Form Card */
+  .form-card-glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 24px;
+    padding: 35px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.02);
+  }
+
+  [data-bs-theme="dark"] .form-card-glass {
+    background: rgba(30, 41, 59, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+  }
+
+  .card-header-custom {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+
+  .card-header-custom i {
+    font-size: 1.5rem;
+    color: #4f46e5;
+  }
+
+  [data-bs-theme="dark"] .card-header-custom i {
+    color: #818cf8;
+  }
+
+  .card-header-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  [data-bs-theme="dark"] .card-header-title {
+    color: #f8fafc;
+  }
+
+  /* Labeled Input styling with weather icons */
+  .form-group-custom {
+    margin-bottom: 24px;
+  }
+
+  .label-custom {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #475569;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  [data-bs-theme="dark"] .label-custom {
+    color: #94a3b8;
+  }
+
+  .input-wrapper-custom {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-wrapper-custom i {
+    position: absolute;
+    left: 16px;
+    font-size: 1.15rem;
+    color: #64748b;
+    pointer-events: none;
+    transition: color 0.3s ease;
+  }
+
+  [data-bs-theme="dark"] .input-wrapper-custom i {
+    color: #94a3b8;
+  }
+
+  .input-field-custom {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    padding: 12px 16px 12px 48px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #0f172a;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+
+  [data-bs-theme="dark"] .input-field-custom {
+    background: rgba(15, 23, 42, 0.4);
+    border-color: #334155;
+    color: #f8fafc;
+  }
+
+  .input-field-custom:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    background: #ffffff;
+  }
+
+  [data-bs-theme="dark"] .input-field-custom:focus {
+    border-color: #818cf8;
+    box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.15);
+    background: rgba(15, 23, 42, 0.6);
+  }
+
+  .input-field-custom:focus + i {
+    color: #4f46e5;
+  }
+
+  [data-bs-theme="dark"] .input-field-custom:focus + i {
+    color: #818cf8;
+  }
+
+  /* Button gradient */
+  .btn-gradient-submit {
+    background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+    color: white;
+    width: 100%;
+    padding: 14px 28px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    border: none;
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-gradient-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(79, 70, 229, 0.4);
+  }
+
+  /* Right column panels */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card-glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.01);
+    text-align: center;
+  }
+
+  [data-bs-theme="dark"] .stat-card-glass {
+    background: rgba(30, 41, 59, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .stat-value {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    color: #0f172a;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+
+  [data-bs-theme="dark"] .stat-value {
+    color: #f8fafc;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  [data-bs-theme="dark"] .stat-label {
+    color: #94a3b8;
+  }
+
+  /* History Card list & badges */
+  .history-card-glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.01);
+  }
+
+  [data-bs-theme="dark"] .history-card-glass {
+    background: rgba(30, 41, 59, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+  }
+
+  .history-table-container {
+    overflow-x: auto;
+  }
+
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  .history-table th {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  [data-bs-theme="dark"] .history-table th {
+    color: #94a3b8;
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .history-table td {
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #334155;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  }
+
+  [data-bs-theme="dark"] .history-table td {
+    color: #cbd5e1;
+    border-bottom-color: rgba(255, 255, 255, 0.03);
+  }
+
+  .history-row:last-child td {
+    border-bottom: none;
+  }
+
+  /* Colored weather badge pills */
+  .badge-weather {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+
+  .badge-sunny {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+  }
+  [data-bs-theme="dark"] .badge-sunny {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+  }
+
+  .badge-rainy {
+    background-color: rgba(14, 165, 233, 0.1);
+    color: #0284c7;
+  }
+  [data-bs-theme="dark"] .badge-rainy {
+    background-color: rgba(14, 165, 233, 0.15);
+    color: #38bdf8;
+  }
+
+  .badge-cloudy {
+    background-color: rgba(100, 116, 139, 0.1);
+    color: #475569;
+  }
+  [data-bs-theme="dark"] .badge-cloudy {
+    background-color: rgba(148, 163, 184, 0.15);
+    color: #cbd5e1;
+  }
+
+  .badge-snowy {
+    background-color: rgba(99, 102, 241, 0.1);
+    color: #4f46e5;
+  }
+  [data-bs-theme="dark"] .badge-snowy {
+    background-color: rgba(99, 102, 241, 0.15);
+    color: #818cf8;
+  }
+
+  /* Live radar visual */
+  .radar-card-glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 24px;
+    padding: 25px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.01);
+    margin-top: 24px;
+    text-align: center;
+  }
+
+  [data-bs-theme="dark"] .radar-card-glass {
+    background: rgba(30, 41, 59, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+  }
+
+  .radar-screen {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 2px solid rgba(79, 70, 229, 0.25);
+    position: relative;
+    margin: 15px auto;
+    background: radial-gradient(circle, rgba(79, 70, 229, 0.05) 0%, rgba(79, 70, 229, 0.15) 100%);
+    overflow: hidden;
+  }
+
+  [data-bs-theme="dark"] .radar-screen {
+    border-color: rgba(129, 140, 248, 0.3);
+    background: radial-gradient(circle, rgba(129, 140, 248, 0.03) 0%, rgba(129, 140, 248, 0.1) 100%);
+  }
+
+  .radar-sweep {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: conic-gradient(from 0deg at 50% 50%, rgba(79, 70, 229, 0.4) 0deg, rgba(79, 70, 229, 0) 120deg);
+    border-radius: 50%;
+    animation: sweep 4s linear infinite;
+    transform-origin: center;
+  }
+
+  [data-bs-theme="dark"] .radar-sweep {
+    background: conic-gradient(from 0deg at 50% 50%, rgba(129, 140, 248, 0.4) 0deg, rgba(129, 140, 248, 0) 120deg);
+  }
+
+  @keyframes sweep {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .radar-grid {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    border: 1px dashed rgba(79, 70, 229, 0.2);
+    border-radius: 50%;
+  }
+
+  .radar-dot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: #10b981;
+    border-radius: 50%;
+    top: 30%;
+    left: 40%;
+    animation: flash 1.5s infinite;
+    box-shadow: 0 0 10px #10b981;
+  }
+
+  @keyframes flash {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  /* Cities List card */
+  .cities-grid-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.01);
+    margin-top: 24px;
+  }
+
+  [data-bs-theme="dark"] .cities-grid-card {
+    background: rgba(30, 41, 59, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+  }
+
+  .cities-list-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  @media (max-width: 576px) {
+    .cities-list-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .city-mini-item {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    border-radius: 16px;
+    padding: 16px 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  [data-bs-theme="dark"] .city-mini-item {
+    background: rgba(15, 23, 42, 0.3);
+    border-color: rgba(255, 255, 255, 0.04);
+  }
+
+  .city-mini-item:hover {
+    transform: translateY(-3px);
+    background: #ffffff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.02);
+  }
+
+  [data-bs-theme="dark"] .city-mini-item:hover {
+    background: rgba(15, 23, 42, 0.5);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .city-mini-name {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  [data-bs-theme="dark"] .city-mini-name {
+    color: #94a3b8;
+  }
+
+  .city-mini-icon {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    display: inline-block;
+  }
+
+  .city-mini-temp {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #0f172a;
+    display: block;
+  }
+
+  [data-bs-theme="dark"] .city-mini-temp {
+    color: #f8fafc;
+  }
+
+  /* Instruction guidelines block in parameter card */
+  .guideline-box-custom {
+    background: rgba(79, 70, 229, 0.04);
+    border: 1px solid rgba(79, 70, 229, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 25px;
+  }
+
+  [data-bs-theme="dark"] .guideline-box-custom {
+    background: rgba(129, 140, 248, 0.04);
+    border-color: rgba(129, 140, 248, 0.1);
+  }
+
+  .guideline-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #4f46e5;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  [data-bs-theme="dark"] .guideline-title {
+    color: #818cf8;
+  }
+
+  .guideline-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #475569;
+    font-weight: 500;
+  }
+
+  [data-bs-theme="dark"] .guideline-list {
+    color: #cbd5e1;
+  }
+
+  .guideline-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .guideline-list i {
+    color: #4f46e5;
+    margin-top: 2px;
+  }
+
+  [data-bs-theme="dark"] .guideline-list i {
+    color: #818cf8;
+  }
+</style>
+
+<!-- Floating Navbar -->
+<nav class="navbar navbar-expand-lg landing-nav py-3 px-4">
+  <div class="container-fluid px-0">
+    <a class="nav-link d-flex align-items-center me-3" href="/" style="font-weight: 600; gap: 6px; font-size: 0.95rem;">
+      <i class="bi bi-arrow-left fs-5"></i> Home
+    </a>
+    <a class="navbar-brand fw-bold text-primary d-flex align-items-center" href="/">
+      <i class="bi bi-cloud-sun-fill me-2 fs-4"></i>WeatherPro
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#landingNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="landingNav">
+      <div class="navbar-nav mx-auto text-center d-none d-lg-block">
+        <span class="text-muted fw-semibold" style="font-style: italic; font-size: 0.9rem; letter-spacing: 0.02em;">
+          "To predict the future, one must first learn to listen to the atmosphere."
+        </span>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+          <i class="bi bi-moon-stars-fill"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container dashboard-container">
+  <div class="row">
+    <div class="col-12 text-center text-lg-start">
+      <h1 class="page-title">Prediction Dashboard</h1>
+      <p class="page-subtitle">Enter weather indicators to forecast weather outcomes using our AI model.</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Column: Prediction Form -->
+    <div class="col-lg-6">
+      <div class="form-card-glass" style="height: 100%;">
+        <div class="card-header-custom">
+          <i class="bi bi-cloud-lightning-rain"></i>
+          <h3 class="card-header-title">Enter Parameters</h3>
+        </div>
+
+        <form action="/result" method="post" id="weatherForm">
+          <!-- Date Input -->
+          <div class="form-group-custom">
+            <label class="label-custom" for="date">Forecast Date</label>
+            <div class="input-wrapper-custom">
+              <input type="date" name="date" id="date" class="input-field-custom" required>
+              <i class="bi bi-calendar-date"></i>
+            </div>
+          </div>
+
+          <div class="row">
+            <!-- Max Temp Input -->
+            <div class="col-md-6">
+              <div class="form-group-custom">
+                <label class="label-custom" for="temp_max">Max Temp (°C)</label>
+                <div class="input-wrapper-custom">
+                  <input type="number" name="temp_max" id="temp_max" class="input-field-custom" step="0.1" placeholder="28.5" required>
+                  <i class="bi bi-thermometer-high"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Min Temp Input -->
+            <div class="col-md-6">
+              <div class="form-group-custom">
+                <label class="label-custom" for="temp_min">Min Temp (°C)</label>
+                <div class="input-wrapper-custom">
+                  <input type="number" name="temp_min" id="temp_min" class="input-field-custom" step="0.1" placeholder="18.2" required>
+                  <i class="bi bi-thermometer-low"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <!-- Precipitation Input -->
+            <div class="col-md-6">
+              <div class="form-group-custom">
+                <label class="label-custom" for="precipitation">Precipitation (mm)</label>
+                <div class="input-wrapper-custom">
+                  <input type="number" name="precipitation" id="precipitation" class="input-field-custom" step="0.1" placeholder="4.5" required>
+                  <i class="bi bi-cloud-rain"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Wind Speed Input -->
+            <div class="col-md-6">
+              <div class="form-group-custom">
+                <label class="label-custom" for="wind">Wind Speed (km/h)</label>
+                <div class="input-wrapper-custom">
+                  <input type="number" name="wind" id="wind" class="input-field-custom" step="0.1" placeholder="12.3" required>
+                  <i class="bi bi-wind"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn-gradient-submit mt-2">
+            Predict Weather <i class="bi bi-magic"></i>
+          </button>
+        </form>
+
+        <!-- Guidelines Box to fill space and align heights -->
+        <div class="guideline-box-custom">
+          <div class="guideline-title">
+            <i class="bi bi-info-circle-fill"></i> Prediction Guidelines
+          </div>
+          <ul class="guideline-list">
+            <li>
+              <i class="bi bi-chevron-right"></i>
+              <span>Ensure temperatures represent standard regional forecasts.</span>
+            </li>
+            <li>
+              <i class="bi bi-chevron-right"></i>
+              <span>Precipitation values should be entered in millimeters (mm).</span>
+            </li>
+            <li>
+              <i class="bi bi-chevron-right"></i>
+              <span>Wind speed parameter relies on 24-hour average measurements.</span>
+            </li>
+            <li>
+              <i class="bi bi-chevron-right"></i>
+              <span>Optimal performance is verified within standard atmospheric limits.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Stats, Cities & Radar -->
+    <div class="col-lg-6">
+      <div class="d-flex flex-column gap-4" style="height: 100%; justify-content: space-between;">
+        <!-- Quick Stats Row -->
+        <div class="stats-grid">
+          <div class="stat-card-glass">
+            <div class="stat-value">34.2°C</div>
+            <div class="stat-label">Weekly High</div>
+          </div>
+          <div class="stat-card-glass">
+            <div class="stat-value">5.8 mm</div>
+            <div class="stat-label">Precip Avg</div>
+          </div>
+          <div class="stat-card-glass">
+            <div class="stat-value">94.2%</div>
+            <div class="stat-label">AI Accuracy</div>
+          </div>
+        </div>
+
+        <!-- Major Cities Real-Time Forecasts Card -->
+        <div class="cities-grid-card mt-0">
+          <div class="card-header-custom mb-3">
+            <i class="bi bi-geo-alt"></i>
+            <h3 class="card-header-title">Major Cities Live Forecast</h3>
+          </div>
+          <div class="cities-list-row">
+            <div class="city-mini-item">
+              <span class="city-mini-name">New Delhi</span>
+              <span class="city-mini-icon"><i class="bi bi-sun-fill text-warning"></i></span>
+              <span class="city-mini-temp">34°C</span>
+            </div>
+            <div class="city-mini-item">
+              <span class="city-mini-name">Mumbai</span>
+              <span class="city-mini-icon"><i class="bi bi-cloud-rain-heavy-fill text-info"></i></span>
+              <span class="city-mini-temp">29°C</span>
+            </div>
+            <div class="city-mini-item">
+              <span class="city-mini-name">Bengaluru</span>
+              <span class="city-mini-icon"><i class="bi bi-wind text-primary"></i></span>
+              <span class="city-mini-temp">22°C</span>
+            </div>
+            <div class="city-mini-item">
+              <span class="city-mini-name">Kolkata</span>
+              <span class="city-mini-icon"><i class="bi bi-cloud-lightning-fill text-warning"></i></span>
+              <span class="city-mini-temp">31°C</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Satellite Radar Card -->
+        <div class="radar-card-glass mt-0">
+          <div class="card-header-custom mb-2 justify-content-center">
+            <i class="bi bi-radar"></i>
+            <h3 class="card-header-title">Satellite Radar Status</h3>
+          </div>
+          <div class="d-flex align-items-center justify-content-center gap-4 py-2">
+            <div class="radar-screen" style="margin: 0;">
+              <div class="radar-sweep"></div>
+              <div class="radar-grid"></div>
+              <div class="radar-dot"></div>
+            </div>
+            <div class="text-start">
+              <div style="font-size: 0.85rem; font-weight: 700; color: #10b981; display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.1); padding: 4px 12px; border-radius: 30px; margin-bottom: 8px;">
+                <span style="width: 6px; height: 6px; background: #10b981; border-radius: 50%; display: inline-block;"></span> Active Scanning
+              </div>
+              <p class="text-muted mb-0" style="font-size: 0.85rem; font-weight: 500;">
+                Region: IN-North Sector<br>
+                Signal Strength: 98% (Optimal)
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Row: Last 7 Days History completely down -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="history-card-glass">
+        <div class="card-header-custom mb-4">
+          <i class="bi bi-clock-history"></i>
+          <h3 class="card-header-title">Last 7 Days History</h3>
+        </div>
+
+        <div class="history-table-container">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Temp Range</th>
+                <th>Precip</th>
+                <th>Wind</th>
+                <th>Prediction</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="history-row">
+                <td>July 10, 2026</td>
+                <td>22°C - 33°C</td>
+                <td>0.0 mm</td>
+                <td>6.5 km/h</td>
+                <td><span class="badge-weather badge-sunny"><i class="bi bi-sun-fill me-1"></i>Sunny</span></td>
+              </tr>
+              <tr class="history-row">
+                <td>July 09, 2026</td>
+                <td>20°C - 31°C</td>
+                <td>8.2 mm</td>
+                <td>14.1 km/h</td>
+                <td><span class="badge-weather badge-rainy"><i class="bi bi-cloud-rain-fill me-1"></i>Rainy</span></td>
+              </tr>
+              <tr class="history-row">
+                <td>July 08, 2026</td>
+                <td>23°C - 34°C</td>
+                <td>0.5 mm</td>
+                <td>8.0 km/h</td>
+                <td><span class="badge-weather badge-sunny"><i class="bi bi-sun-fill me-1"></i>Sunny</span></td>
+              </tr>
+              <tr class="history-row">
+                <td>July 07, 2026</td>
+                <td>21°C - 29°C</td>
+                <td>22.4 mm</td>
+                <td>18.5 km/h</td>
+                <td><span class="badge-weather badge-rainy"><i class="bi bi-cloud-rain-fill me-1"></i>Rainy</span></td>
+              </tr>
+              <tr class="history-row">
+                <td>July 06, 2026</td>
+                <td>19°C - 27°C</td>
+                <td>2.0 mm</td>
+                <td>10.2 km/h</td>
+                <td><span class="badge-weather badge-cloudy"><i class="bi bi-cloud-fill me-1"></i>Cloudy</span></td>
+              </tr>
+              <tr class="history-row">
+                <td>July 05, 2026</td>
+                <td>18°C - 26°C</td>
+                <td>0.0 mm</td>
+                <td>7.8 km/h</td>
+                <td><span class="badge-weather badge-sunny"><i class="bi bi-sun-fill me-1"></i>Sunny</span></td>
+              </tr>
+              <tr class="history-row">
+                <td>July 04, 2026</td>
+                <td>17°C - 24°C</td>
+                <td>1.2 mm</td>
+                <td>9.0 km/h</td>
+                <td><span class="badge-weather badge-cloudy"><i class="bi bi-cloud-fill me-1"></i>Cloudy</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Theme toggle syncing
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = themeToggleBtn.querySelector('i');
+
+    const updateIcon = (theme) => {
+      if (theme === 'dark') {
+        themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
+      } else {
+        themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
+      }
+    };
+
+    const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+    updateIcon(currentTheme);
+
+    themeToggleBtn.addEventListener('click', () => {
+      let newTheme = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-bs-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateIcon(newTheme);
+    });
+
+    // Automatically set the date input default to today
+    const dateInput = document.getElementById('date');
+    if (dateInput) {
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.value = today;
+    }
+  });
+</script>
+{% endblock %}

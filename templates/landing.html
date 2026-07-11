@@ -1,0 +1,1119 @@
+{% extends "base.html" %}
+{% block title %}Welcome - WeatherPro{% endblock %}
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+  body {
+    background-color: #f8fafc;
+    color: #0f172a;
+    font-family: 'Outfit', sans-serif;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Theme variables for easy design adjustments */
+  :root {
+    --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+    --primary-glow: rgba(79, 70, 229, 0.15);
+  }
+
+  [data-bs-theme="dark"] body {
+    background-color: #0b0f19;
+    color: #cbd5e1;
+  }
+
+  /* Floating island navbar */
+  .landing-nav {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 40px);
+    max-width: 1200px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(16px);
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  [data-bs-theme="dark"] .landing-nav {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .landing-nav .navbar-brand {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  .nav-link {
+    position: relative;
+    padding: 0.5rem 1rem;
+    color: #475569 !important;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  [data-bs-theme="dark"] .nav-link {
+    color: #cbd5e1 !important;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 24px;
+    height: 3px;
+    background: #4f46e5;
+    border-radius: 3px;
+    transition: transform 0.3s ease;
+  }
+
+  [data-bs-theme="dark"] .nav-link::after {
+    background: #818cf8;
+  }
+
+  .nav-link:hover::after {
+    transform: translateX(-50%) scaleX(1);
+  }
+
+  .nav-link:hover {
+    color: #4f46e5 !important;
+  }
+
+  [data-bs-theme="dark"] .nav-link:hover {
+    color: #818cf8 !important;
+  }
+
+  /* Responsive toggler styling */
+  .navbar-toggler {
+    border: none;
+    padding: 0;
+  }
+  .navbar-toggler:focus {
+    box-shadow: none;
+  }
+
+  /* Hero Section styling */
+  .landing-hero {
+    padding-top: 180px;
+    padding-bottom: 120px;
+    position: relative;
+    background: radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.12) 0%, rgba(255, 255, 255, 0) 50%), 
+                radial-gradient(circle at 10% 80%, rgba(6, 182, 212, 0.08) 0%, rgba(255, 255, 255, 0) 50%);
+  }
+
+  [data-bs-theme="dark"] .landing-hero {
+    background: radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.15) 0%, rgba(11, 15, 25, 0) 50%), 
+                radial-gradient(circle at 10% 80%, rgba(6, 182, 212, 0.1) 0%, rgba(11, 15, 25, 0) 50%);
+  }
+
+  .badge-glow {
+    background: rgba(79, 70, 229, 0.08);
+    border: 1px solid rgba(79, 70, 229, 0.2);
+    color: #4f46e5;
+    font-size: 0.9rem;
+    padding: 8px 18px;
+    border-radius: 30px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    box-shadow: 0 0 20px rgba(79, 70, 229, 0.05);
+    margin-bottom: 24px;
+  }
+
+  [data-bs-theme="dark"] .badge-glow {
+    background: rgba(129, 140, 248, 0.1);
+    border: 1px solid rgba(129, 140, 248, 0.3);
+    color: #a5b4fc;
+  }
+
+  .hero-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 3.8rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: #0f172a;
+    margin-bottom: 24px;
+  }
+
+  [data-bs-theme="dark"] .hero-title {
+    color: #f8fafc;
+  }
+
+  .hero-gradient-text {
+    background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-desc {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: #475569;
+    margin-bottom: 40px;
+    font-weight: 400;
+    max-width: 550px;
+  }
+
+  [data-bs-theme="dark"] .hero-desc {
+    color: #94a3b8;
+  }
+
+  .btn-gradient {
+    background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+    color: white;
+    padding: 16px 36px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.35);
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-gradient:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(79, 70, 229, 0.5);
+    color: white;
+  }
+
+  .btn-outline-custom {
+    color: #475569;
+    background: transparent;
+    border: 1px solid #cbd5e1;
+    padding: 16px 36px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  [data-bs-theme="dark"] .btn-outline-custom {
+    color: #cbd5e1;
+    border-color: #334155;
+  }
+
+  .btn-outline-custom:hover {
+    background: rgba(0, 0, 0, 0.02);
+    color: #0f172a;
+    border-color: #94a3b8;
+  }
+
+  [data-bs-theme="dark"] .btn-outline-custom:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: #f8fafc;
+    border-color: #475569;
+  }
+
+  .hero-img-container {
+    position: relative;
+    display: inline-block;
+    padding: 20px;
+  }
+
+  .hero-img-glow {
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    right: 15%;
+    bottom: 15%;
+    background: linear-gradient(135deg, #4f46e5, #06b6d4);
+    filter: blur(60px);
+    opacity: 0.2;
+    z-index: -1;
+    border-radius: 30px;
+  }
+
+  .hero-img {
+    width: 100%;
+    max-width: 580px;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+    border: 4px solid rgba(255, 255, 255, 0.8);
+    animation: float 6s ease-in-out infinite;
+    transition: all 0.3s ease;
+  }
+
+  [data-bs-theme="dark"] .hero-img {
+    border: 4px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-16px); }
+    100% { transform: translateY(0px); }
+  }
+
+  /* Floating Weather Badges */
+  .floating-badge {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+    text-align: left;
+    z-index: 10;
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+
+  [data-bs-theme="dark"] .floating-badge {
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  .floating-badge i {
+    font-size: 1.4rem;
+  }
+
+  .badge-city {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+  }
+
+  [data-bs-theme="dark"] .badge-city {
+    color: #94a3b8;
+  }
+
+  .badge-temp {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.2;
+  }
+
+  [data-bs-theme="dark"] .badge-temp {
+    color: #f8fafc;
+  }
+
+  /* Absolute positions and animations */
+  .badge-1 {
+    top: 5%;
+    left: -15px;
+    animation: bob-1 5s ease-in-out infinite;
+  }
+
+  .badge-2 {
+    top: 15%;
+    right: -15px;
+    animation: bob-2 6s ease-in-out infinite;
+  }
+
+  .badge-3 {
+    bottom: 12%;
+    left: -10px;
+    animation: bob-3 5.5s ease-in-out infinite;
+  }
+
+  .badge-4 {
+    bottom: 8%;
+    right: -10px;
+    animation: bob-4 6.5s ease-in-out infinite;
+  }
+
+  @keyframes bob-1 {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes bob-2 {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+  }
+
+  @keyframes bob-3 {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(10px); }
+  }
+
+  @keyframes bob-4 {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(12px); }
+  }
+
+  /* Adjust mockup container padding to allow room for floating badges */
+  .hero-img-container {
+    position: relative;
+    display: inline-block;
+    padding: 30px;
+  }
+
+  @media (max-width: 768px) {
+    .floating-badge {
+      display: none !important;
+    }
+  }
+
+  /* Features section styling */
+  .section-padding {
+    padding: 120px 0;
+  }
+
+  .section-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 2.6rem;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+    margin-bottom: 16px;
+  }
+
+  [data-bs-theme="dark"] .section-title {
+    color: #f8fafc;
+  }
+
+  .section-subtitle {
+    color: #64748b;
+    font-size: 1.15rem;
+    max-width: 600px;
+    margin: 0 auto 60px auto;
+  }
+
+  [data-bs-theme="dark"] .section-subtitle {
+    color: #94a3b8;
+  }
+
+  .feature-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 24px;
+    padding: 40px 30px;
+    height: 100%;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.01);
+  }
+
+  [data-bs-theme="dark"] .feature-card {
+    background: rgba(30, 41, 59, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+  }
+
+  .feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(79, 70, 229, 0.08);
+    border-color: rgba(79, 70, 229, 0.25);
+  }
+
+  [data-bs-theme="dark"] .feature-card:hover {
+    box-shadow: 0 20px 40px rgba(129, 140, 248, 0.12);
+    border-color: rgba(129, 140, 248, 0.3);
+  }
+
+  .feature-icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(6, 182, 212, 0.08) 100%);
+    color: #4f46e5;
+    border: 1px solid rgba(79, 70, 229, 0.15);
+  }
+
+  [data-bs-theme="dark"] .feature-icon-box {
+    color: #818cf8;
+    background: linear-gradient(135deg, rgba(129, 140, 248, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
+    border: 1px solid rgba(129, 140, 248, 0.25);
+  }
+
+  .feature-card h4 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #0f172a;
+  }
+
+  [data-bs-theme="dark"] .feature-card h4 {
+    color: #f8fafc;
+  }
+
+  .feature-card p {
+    color: #475569;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 0;
+  }
+
+  [data-bs-theme="dark"] .feature-card p {
+    color: #94a3b8;
+  }
+
+  /* How It Works section styling */
+  .how-it-works-bg {
+    background-color: #f8fafc;
+  }
+
+  [data-bs-theme="dark"] .how-it-works-bg {
+    background-color: #0b0f19;
+  }
+
+  .step-number-huge {
+    font-size: 5rem;
+    font-weight: 800;
+    line-height: 1;
+    color: rgba(15, 23, 42, 0.08);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+    transition: color 0.3s ease;
+  }
+
+  [data-bs-theme="dark"] .step-number-huge {
+    color: rgba(255, 255, 255, 0.05);
+  }
+
+  .step-title-modern {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.35rem;
+    color: #0f172a;
+    margin-bottom: 14px;
+  }
+
+  [data-bs-theme="dark"] .step-title-modern {
+    color: #f8fafc;
+  }
+
+  .step-desc-modern {
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  [data-bs-theme="dark"] .step-desc-modern {
+    color: #94a3b8;
+  }
+
+  /* CTA styling */
+  .cta-section {
+    padding: 100px 0;
+  }
+
+  .cta-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 32px;
+    padding: 60px 50px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.02);
+  }
+
+  [data-bs-theme="dark"] .cta-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.35) 0%, rgba(15, 23, 42, 0.5) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.3);
+  }
+
+  .cta-glow-1 {
+    position: absolute;
+    top: -30%;
+    left: -35%;
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0,0,0,0) 70%);
+    filter: blur(50px);
+    pointer-events: none;
+  }
+
+  .cta-glow-2 {
+    position: absolute;
+    bottom: -30%;
+    right: -35%;
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, rgba(0,0,0,0) 70%);
+    filter: blur(50px);
+    pointer-events: none;
+  }
+
+  .cta-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #4f46e5;
+    margin-bottom: 16px;
+  }
+
+  [data-bs-theme="dark"] .cta-label {
+    color: #818cf8;
+  }
+
+  .cta-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+
+  [data-bs-theme="dark"] .cta-title {
+    color: #f8fafc;
+  }
+
+  .cta-desc {
+    font-size: 1.1rem;
+    color: #475569;
+    line-height: 1.6;
+    margin-bottom: 30px;
+  }
+
+  [data-bs-theme="dark"] .cta-desc {
+    color: #94a3b8;
+  }
+
+  .cta-features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .cta-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    color: #334155;
+    font-weight: 500;
+  }
+
+  [data-bs-theme="dark"] .cta-feature-item {
+    color: #cbd5e1;
+  }
+
+  .cta-feature-item i {
+    color: #10b981;
+    font-size: 1.1rem;
+  }
+
+  /* Right column action card */
+  .cta-action-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s ease;
+  }
+
+  [data-bs-theme="dark"] .cta-action-card {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  }
+
+  .cta-action-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .cta-icon-wrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px auto;
+    font-size: 1.8rem;
+    color: #4f46e5;
+    border: 1px solid rgba(79, 70, 229, 0.15);
+  }
+
+  [data-bs-theme="dark"] .cta-icon-wrapper {
+    color: #818cf8;
+    background: linear-gradient(135deg, rgba(129, 140, 248, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%);
+    border: 1px solid rgba(129, 140, 248, 0.25);
+  }
+
+  .cta-hint {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 15px;
+    display: block;
+  }
+
+  [data-bs-theme="dark"] .cta-hint {
+    color: #94a3b8;
+  }
+
+  /* Multi-column structured premium footer */
+  .footer-modern {
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    padding: 50px 0 25px 0;
+  }
+
+  [data-bs-theme="dark"] .footer-modern {
+    background: #090d16;
+    border-top: 1px solid #1e293b;
+  }
+
+  .footer-logo {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1.35rem;
+    color: #4f46e5;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  [data-bs-theme="dark"] .footer-logo {
+    color: #818cf8;
+  }
+
+  .footer-desc {
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    max-width: 280px;
+  }
+
+  [data-bs-theme="dark"] .footer-desc {
+    color: #94a3b8;
+  }
+
+  .social-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.03);
+    color: #475569;
+    margin-right: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+
+  [data-bs-theme="dark"] .social-icon-btn {
+    background: rgba(255,255,255,0.04);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .social-icon-btn:hover {
+    background: #4f46e5;
+    color: white;
+    transform: translateY(-3px);
+  }
+
+  [data-bs-theme="dark"] .social-icon-btn:hover {
+    background: #818cf8;
+    color: white;
+  }
+
+  .footer-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #0f172a;
+    margin-bottom: 15px;
+  }
+
+  [data-bs-theme="dark"] .footer-title {
+    color: #f8fafc;
+  }
+
+  .footer-links-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-link {
+    color: #64748b;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+
+  [data-bs-theme="dark"] .footer-link {
+    color: #94a3b8;
+  }
+
+  .footer-link:hover {
+    color: #4f46e5;
+    transform: translateX(4px);
+  }
+
+  [data-bs-theme="dark"] .footer-link:hover {
+    color: #818cf8;
+  }
+
+  .footer-bottom {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 20px;
+    margin-top: 35px;
+  }
+
+  [data-bs-theme="dark"] .footer-bottom {
+    border-top: 1px solid #1e293b;
+  }
+
+  .footer-bottom p {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 0;
+  }
+
+  [data-bs-theme="dark"] .footer-bottom p {
+    color: #94a3b8;
+  }
+</style>
+
+<!-- Floating Navbar -->
+<nav class="navbar navbar-expand-lg landing-nav py-3 px-4">
+  <div class="container-fluid px-0">
+    <a class="navbar-brand fw-bold text-primary d-flex align-items-center" href="/">
+      <i class="bi bi-cloud-sun-fill me-2 fs-4"></i>WeatherPro
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#landingNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="landingNav">
+      <ul class="navbar-nav mx-auto gap-2">
+        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+        <li class="nav-item"><a class="nav-link" href="#how-it-works">How It Works</a></li>
+      </ul>
+      <div class="d-flex align-items-center gap-3">
+        <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+          <i class="bi bi-moon-stars-fill"></i>
+        </button>
+        <a class="btn-gradient px-4 py-2" href="/predict_ui" style="font-size: 0.95rem; padding: 10px 24px; text-decoration: none;">
+          Launch App <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="landing-hero">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-5 mb-lg-0">
+        <div class="badge-glow">
+          <i class="bi bi-stars"></i> Powered by Advanced Machine Learning
+        </div>
+        <h1 class="hero-title">
+          Experience the <span class="hero-gradient-text">Future</span> of Weather Forecasting
+        </h1>
+        <p class="hero-desc">
+          Plan your days with absolute confidence. Our advanced algorithms analyze complex atmospheric data to provide you with incredibly precise weather predictions in an instant.
+        </p>
+        <div class="d-flex gap-3">
+          <a href="/predict_ui" class="btn-gradient" style="text-decoration: none;">
+            Forecast Now <i class="bi bi-arrow-right-short fs-5"></i>
+          </a>
+          <a href="#features" class="btn-outline-custom">
+            Learn More
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-6 text-center">
+        <div class="hero-img-container">
+          <div class="hero-img-glow"></div>
+          <img src="{{ url_for('static', filename='weather_indian_mockup.png') }}" alt="Indian Weather Forecast App" class="hero-img">
+          
+          <!-- Floating Indian Weather Badges -->
+          <div class="floating-badge badge-1">
+            <i class="bi bi-sun-fill text-warning"></i>
+            <div>
+              <span class="badge-city">New Delhi</span>
+              <span class="badge-temp">34°C &bull; Sunny</span>
+            </div>
+          </div>
+          
+          <div class="floating-badge badge-2">
+            <i class="bi bi-cloud-rain-heavy-fill text-info"></i>
+            <div>
+              <span class="badge-city">Mumbai</span>
+              <span class="badge-temp">29°C &bull; Monsoon</span>
+            </div>
+          </div>
+          
+          <div class="floating-badge badge-3">
+            <i class="bi bi-cloud-sun-fill text-primary"></i>
+            <div>
+              <span class="badge-city">Bengaluru</span>
+              <span class="badge-temp">22°C &bull; Breeze</span>
+            </div>
+          </div>
+
+          <div class="floating-badge badge-4">
+            <i class="bi bi-cloud-lightning-fill text-warning"></i>
+            <div>
+              <span class="badge-city">Kolkata</span>
+              <span class="badge-temp">31°C &bull; Storm</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="section-padding">
+  <div class="container">
+    <div class="text-center">
+      <h2 class="section-title">Why Choose WeatherPro?</h2>
+      <p class="section-subtitle">We bring together cutting-edge technology and beautiful design to deliver the ultimate weather experience.</p>
+    </div>
+    
+    <div class="row g-4 mt-2">
+      <!-- Feature 1 -->
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <i class="bi bi-cloud-sun-fill"></i>
+          </div>
+          <h4>AI-Powered Engine</h4>
+          <p>Our custom Machine Learning model is trained on vast datasets to recognize complex weather patterns and provide highly accurate localized forecasts.</p>
+        </div>
+      </div>
+      <!-- Feature 2 -->
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <i class="bi bi-wind"></i>
+          </div>
+          <h4>Instant Analysis</h4>
+          <p>No more waiting. Input your parameters and receive a detailed weather outcome in milliseconds, thanks to our highly optimized backend inference.</p>
+        </div>
+      </div>
+      <!-- Feature 3 -->
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <i class="bi bi-thermometer-high"></i>
+          </div>
+          <h4>Premium Dashboard</h4>
+          <p>Experience weather like never before. Our stunning, award-winning glassmorphism interface makes reading data an absolute pleasure.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section id="how-it-works" class="section-padding how-it-works-bg">
+  <div class="container">
+    <div class="text-center mb-5 pb-4">
+      <h2 class="section-title">How WeatherPro Works</h2>
+      <p class="section-subtitle">Three simple steps to predict weather conditions in real-time.</p>
+    </div>
+
+    <div class="row g-5">
+      <!-- Step 1 -->
+      <div class="col-lg-4 text-center">
+        <div class="step-number-huge">01</div>
+        <h4 class="step-title-modern">Enter Data Points</h4>
+        <p class="step-desc-modern">
+          Access our beautiful dashboard and input key meteorological metrics. Tell us the date, temps, precipitation, and wind.
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="col-lg-4 text-center">
+        <div class="step-number-huge">02</div>
+        <h4 class="step-title-modern">Click to Predict</h4>
+        <p class="step-desc-modern">
+          Simply tap the floating cloud in the center. Our backend pipes your data into our Machine Learning model instantly.
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="col-lg-4 text-center">
+        <div class="step-number-huge">03</div>
+        <h4 class="step-title-modern">Get Your Forecast</h4>
+        <p class="step-desc-modern">
+          Instantly view your result rendered directly onto the dashboard. Know exactly what to expect in milliseconds.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="container cta-section">
+  <div class="cta-card">
+    <div class="cta-glow-1"></div>
+    <div class="cta-glow-2"></div>
+    <div class="row align-items-center g-5 position-relative z-2 text-start">
+      <div class="col-lg-7">
+        <div class="cta-label">Get Started Today</div>
+        <h2 class="cta-title">Ready to Predict the Future?</h2>
+        <p class="cta-desc">
+          Join thousands of users who rely on WeatherPro for their daily forecasting needs. Stop guessing and start knowing.
+        </p>
+        <ul class="cta-features-list">
+          <li class="cta-feature-item"><i class="bi bi-check-circle-fill"></i> Instant backend ML model predictions</li>
+          <li class="cta-feature-item"><i class="bi bi-check-circle-fill"></i> Interactive visual outputs with glassmorphism dashboard</li>
+          <li class="cta-feature-item"><i class="bi bi-check-circle-fill"></i> Light and dark mode auto-switching supported</li>
+        </ul>
+      </div>
+      <div class="col-lg-5">
+        <div class="cta-action-card">
+          <div class="cta-icon-wrapper">
+            <i class="bi bi-cloud-sun-fill"></i>
+          </div>
+          <a href="/predict_ui" class="btn-gradient px-4 py-3 w-100 fs-5 justify-content-center" style="text-decoration: none; border-radius: 16px;">
+            Launch Dashboard <i class="bi bi-rocket-takeoff-fill ms-2"></i>
+          </a>
+          <span class="cta-hint">No setup required &bull; Free instant access</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer Section -->
+<footer class="footer-modern">
+  <div class="container">
+    <div class="row g-4 justify-content-between">
+      <!-- Brand column -->
+      <div class="col-lg-4 col-md-6">
+        <a class="footer-logo" href="/">
+          <i class="bi bi-cloud-sun-fill fs-3"></i>WeatherPro
+        </a>
+        <p class="footer-desc">
+          State of the art machine learning models designed to make atmospheric prediction accurate, immediate, and accessible for everyone.
+        </p>
+        <div class="d-flex">
+          <a href="#" class="social-icon-btn"><i class="bi bi-twitter"></i></a>
+          <a href="#" class="social-icon-btn"><i class="bi bi-github"></i></a>
+          <a href="#" class="social-icon-btn"><i class="bi bi-linkedin"></i></a>
+          <a href="#" class="social-icon-btn"><i class="bi bi-discord"></i></a>
+        </div>
+      </div>
+
+      <!-- Quick links column -->
+      <div class="col-lg-2 col-md-6 col-6">
+        <h5 class="footer-title">Navigation</h5>
+        <ul class="footer-links-list">
+          <li><a href="/" class="footer-link">Home</a></li>
+          <li><a href="#features" class="footer-link">Features</a></li>
+          <li><a href="#how-it-works" class="footer-link">How It Works</a></li>
+          <li><a href="/predict_ui" class="footer-link">Launch App</a></li>
+        </ul>
+      </div>
+
+      <!-- Tech column -->
+      <div class="col-lg-2 col-md-6 col-6">
+        <h5 class="footer-title">Technology</h5>
+        <ul class="footer-links-list">
+          <li><a href="#" class="footer-link">ML Engine</a></li>
+          <li><a href="#" class="footer-link">API Reference</a></li>
+          <li><a href="#" class="footer-link">Atmospheric Data</a></li>
+          <li><a href="#" class="footer-link">System Status</a></li>
+        </ul>
+      </div>
+
+      <!-- Support column -->
+      <div class="col-lg-3 col-md-6">
+        <h5 class="footer-title">Support & Legal</h5>
+        <ul class="footer-links-list">
+          <li><a href="#" class="footer-link">Documentation</a></li>
+          <li><a href="#" class="footer-link">Help Center</a></li>
+          <li><a href="#" class="footer-link">Privacy Policy</a></li>
+          <li><a href="#" class="footer-link">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom Copyright -->
+    <div class="row footer-bottom text-center text-md-start">
+      <div class="col-md-6 mb-3 mb-md-0">
+        <p class="mb-0">&copy; 2025 WeatherPro Systems. All rights reserved.</p>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <p class="mb-0">Designed for visual excellence and accuracy.</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = themeToggleBtn.querySelector('i');
+
+    const updateIcon = (theme) => {
+      if (theme === 'dark') {
+        themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
+      } else {
+        themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
+      }
+    };
+
+    const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+    updateIcon(currentTheme);
+
+    themeToggleBtn.addEventListener('click', () => {
+      let newTheme = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-bs-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateIcon(newTheme);
+    });
+  });
+</script>
+{% endblock %}

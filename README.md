@@ -1,106 +1,128 @@
-<h1 align="center">🌦️ Weather Now</h1>
+# Weather Prediction System
 
-<p align="center">
-  Beautiful, real‑time weather web app with dark/light themes, animated icons, multi‑color forecast cards, and a polished modern UI.
-</p>
-
-<p align="center">
-  <img alt="Flask" src="https://img.shields.io/badge/Flask-000?logo=flask&logoColor=white">
-  <img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-FFD43B?logo=javascript&logoColor=222">
-  <img alt="Chart.js" src="https://img.shields.io/badge/Chart.js-FF6384?logo=chartdotjs&logoColor=fff">
-  <img alt="Lucide Icons" src="https://img.shields.io/badge/Icons-LUCIDE-0EA5E9">
-</p>
-
-<p align="center">
-  <img alt="Weather Now preview" src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1280&auto=format&fit=crop" width="720">
-</p>
+An end-to-end Flask application that uses a machine-learning model to predict daily weather conditions (e.g. *sunny*, *rainy*, *foggy* …) from basic meteorological readings.
 
 ---
 
-## ✨ Features
-- **Dark/Light mode** with animated weather accents and glassmorphism UI
-- **Smart backgrounds** and multi‑color forecast cards
-- **Location search** with suggestions + use my location (geolocation)
-- **Current weather, sunrise/sunset, 24h & 7d charts** (Chart.js)
-- **Unit toggle** Metric/Imperial with themed dropdown
-- **Clean API proxy** to Open‑Meteo (no API key required)
+## Features
 
-## 📦 Tech Stack
-- **Backend:** Flask (Python) for static serving + lightweight API routes
-- **Frontend:** Vanilla JavaScript, Chart.js, Lucide icons
-- **Styling:** Modern CSS with gradients, blur, and accessibility‑minded contrast
+• **Interactive UI** –  Bootstrap-styled form (`templates/index.html`) where users enter date, precipitation, min/max temperature and wind speed, then view the prediction on a beautiful results page.
 
-## 🚀 Getting Started
+• **REST API** –  `POST /api/predict` accepts JSON and returns the predicted class, enabling programmatic access.
 
-1. **Install Python 3.9+ and pip.**
+• **Reusable preprocessing pipeline** – converts the `date` to cyclical features and fills in missing columns (`weather/utils/preprocess.py`).
 
-2. **Install dependencies**
+• **Model caching** – the pickled model is loaded once and memoized to keep prediction latency low (`weather/model.py`).
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Back-end | Python 3 · Flask |
+| ML / Data | pandas · scikit-learn (random-forest by default) |
+| Front-end | HTML · Bootstrap 5 |
+
+---
+
+## Directory Layout
+
+```
+Whether Prediction System/
+├── app.py                # Flask application factory & routes for pages
+├── config.py             # Paths & global constants
+├── requirements.txt      # Python dependencies (create if missing)
+├── templates/            # Jinja2 HTML templates
+├── static/               # CSS/JS assets
+├── weather/
+│   ├── __init__.py
+│   ├── routes.py         # API blueprint
+│   ├── model.py          # Load & use trained model
+│   └── utils/
+│       └── preprocess.py  # Feature engineering
+├── model/
+│   └── weather_model.pkl  # Trained pickled model (git-ignored)
+└── data/
+    └── weather_prediction.csv # Sample training data (optional)
+```
+
+---
+
+## Quick-start
+
+1. **Clone & enter project**
+
    ```bash
+   git clone <repo-url>
+   cd "Whether Prediction System"
+   ```
+
+2. **Create virtual environment & install deps**
+
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # Windows: .venv\Scripts\activate
    pip install -r requirements.txt
    ```
 
-3. **Run the app**
+3. **Train the model (once)**  
+   A helper script (`train_model.py`) should output `model/weather_model.pkl`.
+
+   ```bash
+   python train_model.py --input data/weather_prediction.csv
+   ```
+
+   *Skip this step if the pickle already exists.*
+
+4. **Run the development server**
+
    ```bash
    python app.py
    ```
 
-4. **Open in your browser**
-   ```text
-   http://127.0.0.1:5000
+   Visit `http://127.0.0.1:5000/` in your browser.
+
+5. **cURL example (API)**
+
+   ```bash
+   curl -X POST http://127.0.0.1:5000/api/predict \
+        -H "Content-Type: application/json" \
+        -d '{
+              "date": "2025-07-11",
+              "precipitation": 0.0,
+              "temp_max": 33,
+              "temp_min": 25,
+              "wind": 2
+            }'
    ```
 
-## 🗺️ Project Structure
+   Response:
 
-```text
-Weather Now/
-├─ app.py          # Flask server + API proxy to Open‑Meteo
-├─ index.html      # App markup
-├─ style.css       # Styles (themes, layout, effects)
-├─ app.js          # Logic, charts, geocode/forecast calls
-├─ requirements.txt
-└─ README.md
-```
-
-## 🔌 API Routes (Flask)
-
-- `GET /api/geocode?name=Hyderabad&count=5`
-- `GET /api/reverse?lat=..&lon=..`
-- `GET /api/forecast?lat=..&lon=..&units=metric|imperial`
-
-All routes proxy to Open‑Meteo services and return JSON.
-
-## 🧭 UI Guide
-
-- **Search bar:** type city to get suggestions
-- **Buttons:**
-  - Search (magnifier)
-  - Use my location (map‑pin)
-  - Dark/Light toggle (moon/sun)
-- **Units:** Metric/Imperial dropdown with color themes
-- **Cards:** Current weather, Sunrise/Sunset, Forecast (5 days)
-- **Charts:** Hourly (24h) and Daily (7d)
-
-## 🖌️ Theming
-
-- Toggle mode with the Dark/Light button
-- Background themes adapt to conditions; forecast cards cycle through vibrant gradients
-- High‑contrast dark glass containers for readability in both modes
-
-## 🧪 Troubleshooting
-
-- If charts don’t render immediately, the app retries with safe fallbacks; refresh once if you changed network/device time.
-- Geolocation denied? Use the search box instead.
-- Mixed content/HTTPS: run locally on HTTP; the Open‑Meteo API supports HTTPS.
-
-## 🔒 Privacy
-
-No user accounts or persistent storage. Location is only used client‑side to fetch weather data for the current session.
-
-
-## 📞 Support
-
-For support, email `ayinalakoteswararao@gmail.com` or open an issue in this GitHub repository.
+   ```json
+   { "prediction": "sunny" }
+   ```
 
 ---
 
-Made with ❤️ by **Ayinala-KoteswaraRao**
+## Configuration
+
+All configurable constants live in `config.py`.
+
+| Name | Purpose | Default |
+|------|---------|---------|
+| `MODEL_PATH` | Location of pickled model | `model/weather_model.pkl` |
+| `DATA_PATH`  | CSV used for training     | `data/weather_prediction.csv` |
+| `DATE_FMT`   | Expected input date format| `%Y-%m-%d` |
+
+---
+
+## Contributing
+
+Pull requests are welcome! Feel free to open issues for bugs or feature suggestions.
+
+---
+
+## License
+
+This project is released under the MIT License – see `LICENSE` for details.
