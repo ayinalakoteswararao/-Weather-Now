@@ -31,6 +31,8 @@ def create_app():
         prediction = predict_weather(data)
         return render_template("result.html", prediction=prediction, data=data)
 
+    return app
+
 app = create_app()
 
 if __name__ == "__main__":
